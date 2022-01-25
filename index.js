@@ -24,9 +24,17 @@ async function run() {
     const blogCollection = database.collection("Blogs");
 
     app.get("/blogs", async (req, res) => {
-      const cursor = blogCollection.find({});
-      const result = await cursor.toArray();
+      const blogs = blogCollection.find({ status: "approved" });
+
+      const result = await blogs.toArray();
       res.send(result);
+    });
+
+    app.get("/blogs/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id), status: "approved" };
+      const blog = await blogCollection.findOne(filter);
+      res.send(blog);
     });
   } finally {
     //   await client.close()
