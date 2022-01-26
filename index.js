@@ -38,6 +38,22 @@ async function run() {
       res.send(blog);
     });
 
+    // domestic blog
+    app.get("/domestic", async (req, res) => {
+      const filter = { category: "domestic", status: "approved" };
+      const blogs = blogCollection.find(filter);
+      const result = await blogs.toArray();
+      res.send(result);
+    });
+
+    // International blog
+    app.get("/international", async (req, res) => {
+      const filter = { category: "International", status: "approved" };
+      const blogs = blogCollection.find(filter);
+      const result = await blogs.toArray();
+      res.send(result);
+    });
+
     //my blogs
     app.get("/myBlogs/:email", async (req, res) => {
       const result = await blogCollection
@@ -47,6 +63,9 @@ async function run() {
       res.send(result);
     });
 
+    //domestic
+
+    //post blog
     app.post("/blogs", async (req, res) => {
       const blog = req.body;
       // console.log(blog);
