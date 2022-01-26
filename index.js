@@ -23,18 +23,42 @@ async function run() {
     const database = client.db("TripStories");
     const blogCollection = database.collection("Blogs");
 
+    //all blogs
     app.get("/blogs", async (req, res) => {
       const blogs = blogCollection.find({ status: "approved" });
-
       const result = await blogs.toArray();
       res.send(result);
     });
 
+    //single blog
     app.get("/blogs/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id), status: "approved" };
       const blog = await blogCollection.findOne(filter);
       res.send(blog);
+    });
+
+    //my blogs
+    app.get("/myBlogs/:email", async (req, res) => {
+      const result = await blogCollection
+        .find({ email: req.params.email })
+        .toArray();
+
+      res.send(result);
+    });
+
+    app.post("/blogs", async (req, res) => {
+      const blog = req.body;
+      // console.log(blog);
+      const result = await blogCollection.insertOne(blog);
+      res.json(result);
+    });
+
+    app.delete("/blogs/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await blogCollection.deleteOne(filter);
+      res.json(result);
     });
   } finally {
     //   await client.close()
