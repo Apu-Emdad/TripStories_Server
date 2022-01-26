@@ -62,6 +62,22 @@ async function run() {
       res.send(result);
     });
 
+    //cruise blogs
+    app.get("/cruise", async (req, res) => {
+      const filter = { transportation: "Cruise", status: "approved" };
+      const blogs = blogCollection.find(filter);
+      const result = await blogs.toArray();
+      res.send(result);
+    });
+
+    //air blogs
+    app.get("/air", async (req, res) => {
+      const filter = { transportation: "air", status: "approved" };
+      const blogs = blogCollection.find(filter);
+      const result = await blogs.toArray();
+      res.send(result);
+    });
+
     //my blogs
     app.get("/myBlogs/:email", async (req, res) => {
       const result = await blogCollection
