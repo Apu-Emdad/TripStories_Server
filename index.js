@@ -54,6 +54,14 @@ async function run() {
       res.send(result);
     });
 
+    //road blogs
+    app.get("/road", async (req, res) => {
+      const filter = { transportation: "Road", status: "approved" };
+      const blogs = blogCollection.find(filter);
+      const result = await blogs.toArray();
+      res.send(result);
+    });
+
     //my blogs
     app.get("/myBlogs/:email", async (req, res) => {
       const result = await blogCollection
