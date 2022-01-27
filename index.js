@@ -25,9 +25,24 @@ async function run() {
 
     //all blogs
     app.get("/blogs", async (req, res) => {
+      // console.log(req.query);
       const blogs = blogCollection.find({ status: "approved" });
-      const result = await blogs.toArray();
-      res.send(result);
+
+      const page = req.query.page;
+      const size = parseInt(req.query.size);
+      let result;
+      const count = await blogs.count();
+
+      if (page) {
+        result = await blogs
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+      } else {
+        result = await blogs.toArray();
+      }
+
+      res.send({ count, blogs: result });
     });
 
     //single blog
@@ -87,8 +102,6 @@ async function run() {
       res.send(result);
     });
 
-    //domestic
-
     //post blog
     app.post("/blogs", async (req, res) => {
       const blog = req.body;
@@ -96,6 +109,8 @@ async function run() {
       const result = await blogCollection.insertOne(blog);
       res.json(result);
     });
+
+    //pending to approve
 
     app.delete("/blogs/:id", async (req, res) => {
       const id = req.params.id;
