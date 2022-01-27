@@ -25,16 +25,28 @@ async function run() {
 
     //all blogs
     app.get("/blogs", async (req, res) => {
-      // console.log(req.query);
+      console.log(req.query);
       const blogs = blogCollection.find({ status: "approved" });
+      const domesticBlogs = blogCollection.find({
+        category: "domestic",
+        status: "approved",
+      });
+
+      // console.log(domesticBlogs);
 
       const page = req.query.page;
       const size = parseInt(req.query.size);
+      const filter = req.query.filter;
       let result;
       const count = await blogs.count();
 
-      if (page) {
+      if (page && filter === "blogs") {
         result = await blogs
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+      } else if (page && filter === "domestic") {
+        result = await domesticBlogs
           .skip(page * size)
           .limit(size)
           .toArray();
