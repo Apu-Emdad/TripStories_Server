@@ -22,6 +22,7 @@ async function run() {
 
     const database = client.db("TripStories");
     const blogCollection = database.collection("Blogs");
+    const reviewCollection = database.collection("reviews");
 
     //all blogs
     app.get("/blogs", async (req, res) => {
@@ -31,6 +32,10 @@ async function run() {
         category: "domestic",
         status: "approved",
       });
+      const internationalBlogs = blogCollection.find({
+        category: "International",
+        status: "approved",
+      });
 
       // console.log(domesticBlogs);
 
@@ -38,7 +43,7 @@ async function run() {
       const size = parseInt(req.query.size);
       const filter = req.query.filter;
       let result;
-      const count = await blogs.count();
+      let count = await blogs.count();
 
       if (page && filter === "blogs") {
         result = await blogs
@@ -46,7 +51,15 @@ async function run() {
           .limit(size)
           .toArray();
       } else if (page && filter === "domestic") {
+        count = await domesticBlogs.count();
         result = await domesticBlogs
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+      } else if (page && filter === "International") {
+        count = await internationalBlogs.count();
+
+        result = await internationalBlogs
           .skip(page * size)
           .limit(size)
           .toArray();
@@ -63,6 +76,21 @@ async function run() {
       const filter = { _id: ObjectId(id), status: "approved" };
       const blog = await blogCollection.findOne(filter);
       res.send(blog);
+    });
+
+    // all blogs
+    app.get("/allblogs", async (req, res) => {
+      const blogs = blogCollection.find({});
+      const result = await blogs.toArray();
+      res.send(result);
+    });
+
+    // pending blogs
+    app.get("/pending", async (req, res) => {
+      const filter = { status: "pending" };
+      const blogs = blogCollection.find(filter);
+      const result = await blogs.toArray();
+      res.send(result);
     });
 
     // domestic blog
@@ -117,16 +145,34 @@ async function run() {
     //post blog
     app.post("/blogs", async (req, res) => {
       const blog = req.body;
-      // console.log(blog);
+      console.log(blog);
       const result = await blogCollection.insertOne(blog);
       res.json(result);
     });
 
-    //pending to approve
+    //post review
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      console.log(review);
+    });
 
+    //pending to approve
+    app.put("/allblogs", async (req, res) => {
+      const id = req.body._id;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = { $set: { status: "approved" } };
+      const options = { upsert: true };
+
+      const result = await blogCollection.updateOne(filter, updateDoc, options);
+
+      console.log(result);
+    });
+
+    // delete blog
     app.delete("/blogs/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
+      console.log("delete request found");
       const result = await blogCollection.deleteOne(filter);
       res.json(result);
     });
