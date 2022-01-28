@@ -142,6 +142,14 @@ async function run() {
       res.send(result);
     });
 
+    //get review
+    app.get("/reviews/:blogId", async (req, res) => {
+      const result = await reviewCollection
+        .find({ blogId: req.params.blogId })
+        .toArray();
+      res.send(result);
+    });
+
     //post blog
     app.post("/blogs", async (req, res) => {
       const blog = req.body;
@@ -154,6 +162,8 @@ async function run() {
     app.post("/reviews", async (req, res) => {
       const review = req.body;
       console.log(review);
+      const result = await reviewCollection.insertOne(review);
+      res.json("review sent");
     });
 
     //pending to approve
